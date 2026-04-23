@@ -6,7 +6,6 @@
     android:layout_height="match_parent"
     android:background="#000000">
 
-    <!-- WebView (full screen) -->
     <WebView
         android:id="@+id/webView"
         android:layout_width="0dp"
@@ -28,7 +27,23 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 
-    <!-- Floating controls (top-right) -->
+    <!-- Status text shown while finding/loading SWF -->
+    <TextView
+        android:id="@+id/statusText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColor="#FF6B35"
+        android:textSize="13sp"
+        android:fontFamily="monospace"
+        android:background="#CC000000"
+        android:padding="12dp"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <!-- Floating controls top-right -->
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -39,24 +54,22 @@
         android:layout_marginTop="8dp"
         android:layout_marginEnd="8dp">
 
-        <!-- Rotate button -->
         <TextView
             android:id="@+id/rotateBtn"
             android:layout_width="40dp"
             android:layout_height="40dp"
-            android:text="⟳"
+            android:text="&#8635;"
             android:textSize="20sp"
             android:textColor="#FFFFFF"
             android:gravity="center"
             android:background="#AA000000"
             android:layout_marginEnd="6dp" />
 
-        <!-- Back button -->
         <TextView
             android:id="@+id/backBtn"
             android:layout_width="40dp"
             android:layout_height="40dp"
-            android:text="✕"
+            android:text="&#10005;"
             android:textSize="16sp"
             android:textColor="#FFFFFF"
             android:gravity="center"

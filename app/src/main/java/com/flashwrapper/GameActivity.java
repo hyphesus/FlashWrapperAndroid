@@ -7,11 +7,15 @@ import android.view.View;
 import android.view.WindowInsets;
 import android.view.WindowInsetsController;
 import android.webkit.WebChromeClient;
+import android.webkit.WebResourceRequest;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.ProgressBar;
 import androidx.appcompat.app.AppCompatActivity;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 
 public class GameActivity extends AppCompatActivity {
 
@@ -30,43 +34,9 @@ public class GameActivity extends AppCompatActivity {
         View rotateBtn = findViewById(R.id.rotateBtn);
         View backBtn = findViewById(R.id.backBtn);
 
-        // Enable fullscreen immersive
         setImmersiveMode();
+        setupWebView();
 
-        // WebView settings
-        WebSettings settings = webView.getSettings();
-        settings.setJavaScriptEnabled(true);
-        settings.setDomStorageEnabled(true);
-        settings.setAllowFileAccess(true);
-        settings.setAllowContentAccess(true);
-        settings.setMediaPlaybackRequiresUserGesture(false);
-        settings.setMixedContentMode(WebSettings.MIXED_CONTENT_ALWAYS_ALLOW);
-        settings.setUseWideViewPort(true);
-        settings.setLoadWithOverviewMode(true);
-        settings.setCacheMode(WebSettings.LOAD_DEFAULT);
-
-        webView.setWebChromeClient(new WebChromeClient() {
-            @Override
-            public void onProgressChanged(WebView view, int newProgress) {
-                if (newProgress < 100) {
-                    progressBar.setVisibility(View.VISIBLE);
-                    progressBar.setProgress(newProgress);
-                } else {
-                    progressBar.setVisibility(View.GONE);
-                    // Inject Ruffle after page loads
-                    injectRuffle();
-                }
-            }
-        });
-
-        webView.setWebViewClient(new WebViewClient() {
-            @Override
-            public void onPageFinished(WebView view, String url) {
-                injectRuffle();
-            }
-        });
-
-        // Rotate button
         rotateBtn.setOnClickListener(v -> {
             isLandscape = !isLandscape;
             setRequestedOrientation(isLandscape
@@ -76,27 +46,65 @@ public class GameActivity extends AppCompatActivity {
 
         backBtn.setOnClickListener(v -> finish());
 
-        // Load the URL
         String url = getIntent().getStringExtra("url");
         if (url != null) {
-            webView.loadUrl(url);
+            loadGameWithRuffle(url);
         }
     }
 
-    private void injectRuffle() {
-        // Inject Ruffle from CDN and activate it on all Flash objects on the page
-        String js = 
-            "(function() {" +
-            "  if (window.__ruffleInjected) return;" +
-            "  window.__ruffleInjected = true;" +
-            "  var script = document.createElement('script');" +
-            "  script.src = 'https://unpkg.com/@ruffle-rs/ruffle';" +
-            "  script.onload = function() {" +
-            "    console.log('Ruffle loaded');" +
-            "  };" +
-            "  document.head.appendChild(script);" +
-            "})();";
-        webView.evaluateJavascript(js, null);
+    @SuppressLint("SetJavaScriptEnabled")
+    private void setupWebView() {
+        WebSettings s = webView.getSettings();
+        s.setJavaScriptEnabled(true);
+        s.setDomStorageEnabled(true);
+        s.setAllowFileAccess(true);
+        s.setAllowFileAccessFromFileURLs(true);
+        s.setAllowUniversalAccessFromFileURLs(true);
+        s.setAllowContentAccess(true);
+        s.setMediaPlaybackRequiresUserGesture(false);
+        s.setMixedContentMode(WebSettings.MIXED_CONTENT_ALWAYS_ALLOW);
+        s.setUseWideViewPort(true);
+        s.setLoadWithOverviewMode(true);
+
+        webView.setWebChromeClient(new WebChromeClient() {
+            @Override
+            public void onProgressChanged(WebView view, int newProgress) {
+                if (newProgress < 100) {
+                    progressBar.setVisibility(View.VISIBLE);
+                    progressBar.setProgress(newProgress);
+                } else {
+                    progressBar.setVisibility(View.GONE);
+                }
+            }
+        });
+
+        webView.setWebViewClient(new WebViewClient() {
+            @Override
+            public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request) {
+                return false;
+            }
+        });
+    }
+
+    private void loadGameWithRuffle(String gameUrl) {
+        try {
+            InputStream is = getAssets().open("ruffle_host.html");
+            byte[] buffer = new byte[is.available()];
+            is.read(buffer);
+            is.close();
+            String html = new String(buffer, StandardCharsets.UTF_8);
+            html = html.replace("%%GAME_URL%%", gameUrl);
+
+            webView.loadDataWithBaseURL(
+                "file:///android_asset/",
+                html,
+                "text/html",
+                "utf-8",
+                null
+            );
+        } catch (IOException e) {
+            webView.loadUrl(gameUrl);
+        }
     }
 
     private void setImmersiveMode() {

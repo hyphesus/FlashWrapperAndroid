@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+  <title>FlashWrapper</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body { width: 100%; height: 100%; background: #000; overflow: hidden; }
+    #status {
+      position: fixed; top: 0; left: 0; right: 0;
+      background: #111; color: #FF6B35; font-family: monospace;
+      font-size: 13px; padding: 8px 12px; z-index: 9999;
+      text-align: center; display: block;
+    }
+    #game-frame {
+      width: 100%; height: 100%; border: none; display: block;
+    }
+  </style>
+</head>
+<body>
+  <div id="status">⚡ Loading Ruffle...</div>
+  <iframe id="game-frame" allowfullscreen
+    sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-pointer-lock">
+  </iframe>
+
+  <script>
+    // Load Ruffle from CDN first, then inject into iframe
+    var GAME_URL = "%%GAME_URL%%"; // replaced at runtime by Java
+
+    var status = document.getElementById('status');
+    var frame  = document.getElementById('game-frame');
+
+    function setStatus(msg) { status.textContent = msg; }
+
+    // Step 1: fetch Ruffle script text from CDN
+    setStatus('⚡ Fetching Ruffle from CDN...');
+    fetch('https://unpkg.com/@ruffle-rs/ruffle')
+      .then(function(r) { return r.text(); })
+      .then(function(ruffleScript) {
+        setStatus('⚡ Ruffle loaded. Fetching game page...');
+        // Step 2: fetch the game page HTML
+        return fetch(GAME_URL, { credentials: 'include' })
+          .then(function(r) { return r.text(); })
+          .then(function(html) {
+            return { ruffleScript: ruffleScript, html: html, finalUrl: r.url };
+          });
+      })
+      .then(function(data) {
+        setStatus('⚡ Injecting Ruffle into game page...');
+
+        // Step 3: prepend Ruffle script into the game page HTML
+        var injected = data.html.replace(
+          /(<head[^>]*>)/i,
+          '$1<script>' + data.ruffleScript + '<\/script>'
+        );
+
+        // If no <head>, prepend at top
+        if (injected === data.html) {
+          injected = '<script>' + data.ruffleScript + '<\/script>' + data.html;
+        }
+
+        // Step 4: write the modified HTML into the iframe
+        var blob = new Blob([injected], { type: 'text/html' });
+        var blobUrl = URL.createObjectURL(blob);
+        frame.src = blobUrl;
+
+        frame.onload = function() {
+          setStatus('✅ Game loaded! Tap here to hide this bar.');
+          status.onclick = function() { status.style.display = 'none'; };
+        };
+      })
+      .catch(function(err) {
+        setStatus('❌ Error: ' + err.message + ' — try a direct .swf URL');
+        console.error(err);
+      });
+  </script>
+</body>
+</html>
