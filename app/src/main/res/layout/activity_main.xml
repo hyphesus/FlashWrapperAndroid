@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="#0D0D0D"
+    android:padding="28dp">
+
+    <!-- Title -->
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="48dp"
+        android:text="⚡ FlashWrapper"
+        android:textColor="#FF6B35"
+        android:textSize="28sp"
+        android:textStyle="bold"
+        android:fontFamily="monospace" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:layout_marginBottom="40dp"
+        android:text="Play old Flash games via Ruffle"
+        android:textColor="#666666"
+        android:textSize="13sp"
+        android:fontFamily="monospace" />
+
+    <!-- URL Label -->
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
+        android:text="GAME URL"
+        android:textColor="#FF6B35"
+        android:textSize="11sp"
+        android:letterSpacing="0.15"
+        android:fontFamily="monospace" />
+
+    <!-- URL Input -->
+    <EditText
+        android:id="@+id/urlInput"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="https://example.com/game"
+        android:hintTextColor="#444444"
+        android:textColor="#FFFFFF"
+        android:textSize="14sp"
+        android:fontFamily="monospace"
+        android:inputType="textUri"
+        android:padding="16dp"
+        android:background="@drawable/input_bg"
+        android:imeOptions="actionGo"
+        android:singleLine="true" />
+
+    <!-- Launch Button -->
+    <Button
+        android:id="@+id/launchBtn"
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:layout_marginTop="16dp"
+        android:text="LAUNCH GAME"
+        android:textColor="#0D0D0D"
+        android:textStyle="bold"
+        android:fontFamily="monospace"
+        android:letterSpacing="0.1"
+        android:backgroundTint="#FF6B35" />
+
+    <!-- History label -->
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="40dp"
+        android:layout_marginBottom="8dp"
+        android:text="RECENT"
+        android:textColor="#FF6B35"
+        android:textSize="11sp"
+        android:letterSpacing="0.15"
+        android:fontFamily="monospace" />
+
+    <!-- History list -->
+    <LinearLayout
+        android:id="@+id/historyContainer"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical" />
+
+</LinearLayout>
